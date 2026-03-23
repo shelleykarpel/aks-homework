@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: main-ingress
+  annotations:
+    # Tells Nginx to clean up the Path before passing it to the service
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /service-A
+        pathType: Prefix
+        backend:
+          service:
+            name: service-a-service
+            port:
+              number: 8080
+      - path: /service-B
+        pathType: Prefix
+        backend:
+          service:
+            name: service-b-service
+            port:
+              number: 80
