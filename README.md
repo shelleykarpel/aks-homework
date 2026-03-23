@@ -6,7 +6,7 @@ This repository contains a full-stack DevOps project demonstrating a production-
 - **Infrastructure as Code (IaC):** Fully provisioned using Terraform (VNET, Subnets, AKS).
 - **Path-Based Routing:** Utilizes Nginx Ingress Controller to route traffic to multiple services via a single Load Balancer IP.
 - **Microservices:** - **Service A (Python):** A Bitcoin price tracker fetching real-time data, calculating 10-minute averages, and exposing a health-check server on port 8080.
-  - **Service B (Nginx):** A lightweight web server representing a secondary internal service.
+- **Service B (Nginx):** A lightweight web server representing a secondary internal service.
 - **Production-Ready Standards:** - Resource limits/requests for CPU and Memory.
   - Liveness and Readiness probes for self-healing.
   - Non-root container execution logic.
