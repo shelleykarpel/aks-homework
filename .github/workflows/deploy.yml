@@ -1,0 +1,45 @@
+name: Deploy to AKS
+
+on:
+  push:
+    branches: [ main ] # will run on every push to the main branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 1. Connecting to Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # 2. Building and promoting the image
+      - name: Build and push Service A
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/service-a:${{ github.sha }} ./service-a
+          docker push ${{ secrets.DOCKER_USERNAME }}/service-a:${{ github.sha }}
+
+      # 3. Connecting to Azure
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # 4. Gain access to the AKS cluster
+      - name: Set AKS Context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          cluster-name: ${{ secrets.AZURE_CLUSTER_NAME }}
+
+      # 5. Update the YAMLs with the new image and apply (Deploy)
+      - name: Deploy to AKS
+        run: |
+          # Updating the YAML with the SHA version of the current commit (to prevent cache issues)
+          sed -i 's|image: .*service-a:.*|image: ${{ secrets.DOCKER_USERNAME }}/service-a:${{ github.sha }}|g' k8s/service-a.yaml
+          kubectl apply -f k8s/
